@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardar y Mostrar Letras</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Guardar y Mostrar Letras</h1>
+
+        <!-- Formulario para guardar una letra -->
+        <form id="letraForm">
+            <div class="form-group">
+                <label for="letra">Ingrese una letra:</label>
+                <input type="text" class="form-control" id="letra" name="letra" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Letra</button>
+        </form>
+
+        <!-- Contenedor para mostrar las letras guardadas -->
+        <div id="letrasGuardadas" class="mt-4">
+            <!-- Aquí se mostrarán las letras guardadas -->
+        </div>
+    </div>
+
+    <!-- jQuery y Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script para manejar el formulario y mostrar las letras -->
+    <script>
+    $(document).ready(function() {
+        // Función para cargar las letras guardadas al cargar la página
+        function cargarLetras() {
+            $.ajax({
+                url: 'guardar_letra.php', // Archivo PHP que maneja la inserción y recuperación de letras
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    let letrasGuardadas = $('#letrasGuardadas');
+                    letrasGuardadas.empty();
+                    if (data.length > 0) {
+                        data.forEach(function(letra) {
+                            letrasGuardadas.append('<div class="alert alert-secondary" role="alert">' + letra.letra + '</div>');
+                        });
+                    } else {
+                        letrasGuardadas.append('<div class="alert alert-info" role="alert">No hay letras guardadas.</div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al cargar las letras:', error);
+                }
+            });
+        }
+
+        cargarLetras(); // Cargar las letras al cargar la página inicialmente
+
+        // Manejar envío de formulario para guardar nueva letra
+        $('#letraForm').on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: 'guardar_letra.php',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    $('#letra').val(''); // Limpiar el campo de texto después de guardar
+                    cargarLetras(); // Recargar la lista de letras después de guardar una nueva letra
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al guardar la letra:', error);
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>
